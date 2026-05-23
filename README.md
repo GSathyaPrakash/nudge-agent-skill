@@ -161,18 +161,18 @@ The agent will also auto-index books when you say things like "add this book" an
 You: I'm writing a pitch for my new app. How can I make it more persuasive?
 
 Agent: That's a great challenge. There's an interesting finding worth considering —
-in "Yes!" (Goldstein, How can inconveniencing your audience increase your
-persuasiveness?, pp. 21-22), an infomercial writer changed "Operators are waiting,
-please call now" to "If operators are busy, please call again" — and sales
-skyrocketed. The second version implies demand rather than availability.
+a study in one of the indexed books (pp. 21-22) describes how an infomercial writer
+changed "Operators are waiting, please call now" to "If operators are busy, please
+call again" — and sales skyrocketed. The second version implies demand rather than
+availability.
 
 So here's something to think about: What does your pitch currently show investors
 about what other people are already doing with your product?
 
-In "How to Write a Good Advertisement" (Schwab, Chapter 2), he's blunt: "Three
-out of four readers who notice the advertisement are lost before they reach the end
-of it." Are you making it easy for investors to picture the opportunity in your
-first paragraph, or are you warming up?
+Another indexed book (Chapter 2) puts it bluntly: "Three out of four readers who
+notice the advertisement are lost before they reach the end of it." Are you making
+it easy for investors to picture the opportunity in your first paragraph, or are
+you warming up?
 ```
 
 ## Supported Book Formats
