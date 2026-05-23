@@ -1,18 +1,14 @@
 ---
 name: nudge-agent
 description: >
-  A book-based nudging agent that helps users think through problems by retrieving relevant
-  passages from an indexed book library and providing guidance — not direct answers. Every
-  suggestion is sourced with book name, chapter, and page number so the user can verify it.
-  Use this skill whenever the user asks for suggestions, guidance, ideas, feedback, or help
-  thinking through a problem where domain knowledge from books would be valuable. Also use
-  when the user mentions persuasion, negotiation, marketing, product design, psychology,
-  communication, or any topic that benefits from evidence-based insights. Even if the user
-  doesn't explicitly ask for "book-based" advice, if the nudge library has relevant content,
-  this skill should be used. Use it when the user wants a nudge, hint, or thinking partner
-  rather than a direct solution. Also use when the user says things like "help me think
-  through this", "what should I consider", "give me ideas", "how would you approach",
-  "any suggestions for", "what does research say about", or similar open-ended guidance requests.
+  Book-based nudging agent. Searches an indexed book library for relevant passages and gives
+  sourced guidance (book, chapter, page) — never direct answers. Use when the user asks for
+  suggestions, guidance, ideas, feedback, or help thinking through a problem. Also use for
+  persuasion, negotiation, marketing, product design, psychology, communication, or any topic
+  benefiting from evidence-based insights. Triggers on: "help me think through this",
+  "what should I consider", "give me ideas", "how would you approach", "any suggestions",
+  "what does research say about", or similar open-ended guidance requests — even if the user
+  doesn't explicitly mention books.
 ---
 
 # Nudge Agent
