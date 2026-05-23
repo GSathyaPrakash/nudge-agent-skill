@@ -1,14 +1,13 @@
 ---
 name: nudge-agent
 description: >
-  Book-based nudging agent. Searches an indexed book library for relevant passages and gives
+  Book-based nudging agent with auto-indexing. Drop in PDFs, EPUBs, TXTs, or MDs and the skill
+  indexes them into a searchable library. Finds relevant passages via semantic search and gives
   sourced guidance (book, chapter, page) — never direct answers. Use when the user asks for
-  suggestions, guidance, ideas, feedback, or help thinking through a problem. Also use for
-  persuasion, negotiation, marketing, product design, psychology, communication, or any topic
-  benefiting from evidence-based insights. Triggers on: "help me think through this",
-  "what should I consider", "give me ideas", "how would you approach", "any suggestions",
-  "what does research say about", or similar open-ended guidance requests — even if the user
-  doesn't explicitly mention books.
+  suggestions, guidance, ideas, feedback, or help thinking through a problem. Also use when the
+  user provides a book file or says "add this book". Triggers on: "help me think through this",
+  "what should I consider", "give me ideas", "how would you approach", "any suggestions", "what
+  does research say about", or any open-ended guidance request — even without mentioning books.
 ---
 
 # Nudge Agent
