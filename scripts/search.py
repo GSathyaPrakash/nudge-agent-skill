@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import os
 import sqlite3
 import sys
 from pathlib import Path
@@ -41,6 +42,7 @@ def search(query: str, top_k: int = 5, expand_context: bool = True):
         print("ERROR: No chunks in database.", file=sys.stderr)
         return []
 
+    os.environ["CUDA_VISIBLE_DEVICES"] = ""
     from sentence_transformers import SentenceTransformer
 
     model = SentenceTransformer(EMBEDDING_MODEL)

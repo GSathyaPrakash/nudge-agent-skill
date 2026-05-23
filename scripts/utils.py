@@ -67,6 +67,29 @@ def approx_token_count(text: str) -> int:
 
 
 def detect_chapters(pages: list[dict]) -> list[dict]:
+    has_section_titles = any("section_title" in p for p in pages)
+
+    if has_section_titles:
+        chapters = []
+        seen = set()
+        for page in pages:
+            title = page.get("section_title", "Unknown")
+            if title not in seen:
+                seen.add(title)
+                chapters.append({
+                    "title": title,
+                    "page_start": page["page_num"],
+                    "page_end": page["page_num"],
+                })
+            else:
+                for ch in chapters:
+                    if ch["title"] == title:
+                        ch["page_end"] = page["page_num"]
+                        break
+        if not chapters:
+            chapters.append({"title": "All", "page_start": 1, "page_end": pages[-1]["page_num"]})
+        return chapters
+
     chapters = []
     current_chapter = "Front Matter"
     current_start_page = 1

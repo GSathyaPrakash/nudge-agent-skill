@@ -2,6 +2,8 @@
 import argparse
 import hashlib
 import json
+import os
+import re
 import sqlite3
 import sys
 import time
@@ -58,18 +60,69 @@ def extract_epub_text(epub_path: str) -> list[dict]:
     for item in book.get_items_of_type(ebooklib.ITEM_DOCUMENT):
         doc_map[item.get_id()] = item
 
+    # Try to extract chapter titles from TOC
+    chapter_titles = {}
+    for entry in book.toc:
+        if isinstance(entry, tuple):
+            title = entry[0] if isinstance(entry[0], str) else getattr(entry[0], 'title', None)
+            hrefs = entry[1] if len(entry) > 1 else []
+        else:
+            title = getattr(entry, 'title', None)
+            hrefs = getattr(entry, 'children', [])
+            href = getattr(entry, 'href', None)
+            if href:
+                chapter_titles[href.split('#')[0]] = title or "Untitled"
+                continue
+
+        if isinstance(hrefs, list):
+            for href_item in hrefs:
+                h = getattr(href_item, 'href', None)
+                if h:
+                    chapter_titles[h.split('#')[0]] = title or "Untitled"
+        else:
+            h = getattr(hrefs, 'href', None)
+            if h:
+                chapter_titles[h.split('#')[0]] = title or "Untitled"
+
     ordered_section = 0
     for sid in spine_ids:
         if sid not in doc_map:
             continue
         item = doc_map[sid]
+        item_name = item.get_name()
+        chapter_title = chapter_titles.get(item_name, None)
+
         soup = BeautifulSoup(item.get_content(), "html.parser")
         text = soup.get_text(separator="\n", strip=True)
         text = clean_text(text)
         if not text or len(text) < 20:
             continue
-        ordered_section += 1
-        pages.append({"page_num": ordered_section, "text": text})
+
+        token_count = approx_token_count(text)
+        if token_count > 500:
+            paras = re.split(r"\n\n+|\n(?=[A-Z0-9])", text)
+            paras = [p.strip() for p in paras if p.strip() and len(p.strip()) > 15]
+            para_buffer = ""
+            for para in paras:
+                if not para_buffer:
+                    para_buffer = para
+                    continue
+                combined = para_buffer + "\n\n" + para
+                if approx_token_count(combined) > 500:
+                    ordered_section += 1
+                    section_title = chapter_title or f"Section {ordered_section}"
+                    pages.append({"page_num": ordered_section, "text": para_buffer, "section_title": section_title})
+                    para_buffer = para
+                else:
+                    para_buffer = combined
+            if para_buffer:
+                ordered_section += 1
+                section_title = chapter_title or f"Section {ordered_section}"
+                pages.append({"page_num": ordered_section, "text": para_buffer, "section_title": section_title})
+        else:
+            ordered_section += 1
+            section_title = chapter_title or f"Section {ordered_section}"
+            pages.append({"page_num": ordered_section, "text": text, "section_title": section_title})
 
     return pages
 
@@ -323,6 +376,7 @@ def process_book(file_path: str, conn: sqlite3.Connection, force: bool = False):
 
     print(f"  Loading embedding model ({EMBEDDING_MODEL})...")
     t0 = time.time()
+    os.environ["CUDA_VISIBLE_DEVICES"] = ""
     from sentence_transformers import SentenceTransformer
 
     model = SentenceTransformer(EMBEDDING_MODEL)
