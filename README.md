@@ -45,7 +45,7 @@ Agent crafts a nudge response with citations (book, chapter, page)
 **Option A: One-command setup** (handles everything including system deps)
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nudge-agent.git
+git clone https://github.com/GSathyaPrakash/nudge-agent-skill.git
 cd nudge-agent
 bash setup.sh
 ```
@@ -60,7 +60,7 @@ The setup script will:
 **Option B: Manual setup**
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nudge-agent.git
+git clone https://github.com/GSathyaPrakash/nudge-agent-skill.git
 cd nudge-agent
 
 # Create venv and install deps
@@ -74,12 +74,12 @@ python3 -m venv .venv
 
 ```bash
 # User-level (available in all projects)
-git clone https://github.com/YOUR_USERNAME/nudge-agent.git ~/.opencode/skills/nudge-agent
+git clone https://github.com/GSathyaPrakash/nudge-agent-skill.git ~/.opencode/skills/nudge-agent
 cd ~/.opencode/skills/nudge-agent
 bash setup.sh
 
 # Or project-level
-git clone https://github.com/YOUR_USERNAME/nudge-agent.git .opencode/skills/nudge-agent
+git clone https://github.com/GSathyaPrakash/nudge-agent-skill.git .opencode/skills/nudge-agent
 cd .opencode/skills/nudge-agent
 bash setup.sh
 ```
@@ -90,7 +90,7 @@ Claude Code looks one level deep for `SKILL.md` files:
 
 ```bash
 # Clone and setup
-git clone https://github.com/YOUR_USERNAME/nudge-agent.git ~/nudge-agent
+git clone https://github.com/GSathyaPrakash/nudge-agent-skill.git ~/nudge-agent
 cd ~/nudge-agent
 bash setup.sh
 
@@ -102,7 +102,7 @@ ln -s ~/nudge-agent ~/.claude/skills/nudge-agent
 #### Codex CLI
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nudge-agent.git ~/.codex/skills/nudge-agent
+git clone https://github.com/GSathyaPrakash/nudge-agent-skill.git ~/.codex/skills/nudge-agent
 cd ~/.codex/skills/nudge-agent
 bash setup.sh
 ```
@@ -110,7 +110,7 @@ bash setup.sh
 #### Amp
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nudge-agent.git ~/.config/amp/tools/nudge-agent
+git clone https://github.com/GSathyaPrakash/nudge-agent-skill.git ~/.config/amp/tools/nudge-agent
 cd ~/.config/amp/tools/nudge-agent
 bash setup.sh
 ```
@@ -118,7 +118,7 @@ bash setup.sh
 #### Droid (Factory)
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nudge-agent.git ~/.factory/skills/nudge-agent
+git clone https://github.com/GSathyaPrakash/nudge-agent-skill.git ~/.factory/skills/nudge-agent
 cd ~/.factory/skills/nudge-agent
 bash setup.sh
 ```
