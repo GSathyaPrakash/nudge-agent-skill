@@ -1,6 +1,7 @@
 .venv/
 db/
 manifest.json
+.cache_*_pages.json
 __pycache__/
 *.pyc
 *.egg-info/

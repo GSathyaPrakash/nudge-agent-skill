@@ -22,6 +22,30 @@ from utils import (
 )
 
 
+def _cache_path(file_path: str) -> Path:
+    book_id = generate_book_id(str(Path(file_path).resolve()))
+    return DB_PATH.parent / f".cache_{book_id}_pages.json"
+
+
+def _load_cache(cache_file: Path) -> dict:
+    if cache_file.exists():
+        with open(cache_file) as f:
+            return json.load(f)
+    return {"pages": [], "extracted_up_to": 0, "total_pages": 0, "method": None}
+
+
+def _save_cache(cache_file: Path, data: dict):
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(cache_file, "w") as f:
+        json.dump(data, f)
+
+
+def _clear_cache(file_path: str):
+    cp = _cache_path(file_path)
+    if cp.exists():
+        cp.unlink()
+
+
 def extract_epub_text(epub_path: str) -> list[dict]:
     import ebooklib
     from ebooklib import epub
@@ -53,39 +77,79 @@ def extract_epub_text(epub_path: str) -> list[dict]:
 def extract_pdf_text(pdf_path: str) -> list[dict]:
     import pdfplumber
 
-    pages = []
-    with pdfplumber.open(pdf_path) as pdf:
-        total = len(pdf.pages)
-        has_text = False
-        for i, page in enumerate(pdf.pages):
-            text = page.extract_text()
-            if text and text.strip():
-                has_text = True
-                break
+    cache_file = _cache_path(pdf_path)
+    cache = _load_cache(cache_file)
 
-        if not has_text:
-            print(f"  No text layer detected. Using OCR (this will be slower)...")
-            pages = _ocr_extract(pdf_path, total)
-        else:
+    if cache["pages"] and cache["method"] == "text":
+        print(f"  Resuming from cache: {len(cache['pages'])} pages already extracted")
+        return cache["pages"]
+
+    if cache["pages"] and cache["method"] == "ocr":
+        print(f"  Resuming from cache: {len(cache['pages'])} pages OCR'd (up to page {cache['extracted_up_to']})")
+        needs_ocr = True
+    else:
+        pages = []
+        with pdfplumber.open(pdf_path) as pdf:
+            total = len(pdf.pages)
+            has_text = False
             for i, page in enumerate(pdf.pages):
                 text = page.extract_text()
-                if text:
-                    cleaned = clean_text(text)
-                    if cleaned:
-                        pages.append({"page_num": i + 1, "text": cleaned})
-                if (i + 1) % 50 == 0:
-                    print(f"  Extracted {i + 1}/{total} pages")
+                if text and text.strip():
+                    has_text = True
+                    break
+
+            if not has_text:
+                needs_ocr = True
+            else:
+                for i, page in enumerate(pdf.pages):
+                    text = page.extract_text()
+                    if text:
+                        cleaned = clean_text(text)
+                        if cleaned:
+                            pages.append({"page_num": i + 1, "text": cleaned})
+                    if (i + 1) % 50 == 0:
+                        print(f"  Extracted {i + 1}/{total} pages")
+
+                cache["pages"] = pages
+                cache["method"] = "text"
+                cache["total_pages"] = total
+                _save_cache(cache_file, cache)
+                return pages
+
+    if needs_ocr:
+        with pdfplumber.open(pdf_path) as pdf:
+            total = len(pdf.pages)
+
+        if cache["pages"]:
+            pages = cache["pages"]
+            start_page = cache["extracted_up_to"] + 1
+        else:
+            pages = []
+            start_page = 1
+
+        print(f"  No text layer detected. Using OCR (this will be slower)...")
+        if start_page > 1:
+            print(f"  Resuming OCR from page {start_page}/{total}")
+
+        pages = _ocr_extract(pdf_path, total, pages, start_page, cache_file)
 
     return pages
 
 
-def _ocr_extract(pdf_path: str, total_pages: int) -> list[dict]:
+def _ocr_extract(
+    pdf_path: str,
+    total_pages: int,
+    existing_pages: list[dict] = None,
+    start_page: int = 1,
+    cache_file: Path = None,
+) -> list[dict]:
     import pdf2image
     import pytesseract
 
-    pages = []
+    pages = list(existing_pages) if existing_pages else []
     batch_size = 10
-    for start in range(1, total_pages + 1, batch_size):
+
+    for start in range(start_page, total_pages + 1, batch_size):
         end = min(start + batch_size - 1, total_pages)
         images = pdf2image.convert_from_path(
             pdf_path, first_page=start, last_page=end, dpi=300
@@ -97,6 +161,14 @@ def _ocr_extract(pdf_path: str, total_pages: int) -> list[dict]:
             if cleaned:
                 pages.append({"page_num": page_num, "text": cleaned})
         print(f"  OCR'd {end}/{total_pages} pages")
+
+        if cache_file:
+            _save_cache(cache_file, {
+                "pages": pages,
+                "extracted_up_to": end,
+                "total_pages": total_pages,
+                "method": "ocr",
+            })
 
     return pages
 
@@ -310,6 +382,8 @@ def process_book(file_path: str, conn: sqlite3.Connection, force: bool = False):
         }
     )
     save_manifest(manifest)
+
+    _clear_cache(file_path)
 
     print(f"  Done! {len(chunks)} chunks indexed.\n")
 
